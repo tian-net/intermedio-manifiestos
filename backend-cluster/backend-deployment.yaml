@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: freddy-quispe-12-deployment
+  namespace: freddy-quispe-12-namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: freddy-quispe-12-deployment
+  template:
+    metadata:
+      labels:
+        app: freddy-quispe-12-deployment
+    spec:
+      containers:
+      - name: freddy-quispe-12-container
+        image: tian11qb/sebastian-webflux-nosql:lastest
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8087
+        env:
+        - name: DATABASE_NAME
+          value: "elchino"
+        - name: DATABASE_URI
+          value: "mongodb://<MONGO_EC2_IP>:27017/elchino"
