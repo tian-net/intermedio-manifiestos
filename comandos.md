@@ -43,7 +43,7 @@ kubectl apply -f mongo-cluster/freddy-quispe-12-namespace.yaml
 kubectl apply -f mongo-cluster/mongo-deployment.yaml
 kubectl apply -f mongo-cluster/mongo-service.yaml
 
-# Exponer MongoDB (Minikube no expone NodePort en localhost)
+# Exponer MongoDB fuera del cluster (Minikube Docker driver)
 kubectl port-forward -n freddy-quispe-12-namespace service/mongo-service 27017:27017 --address 0.0.0.0 &
 
 # Anotar IP publica de EC2-1
