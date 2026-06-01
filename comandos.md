@@ -16,15 +16,16 @@ Namespace comun: `freddy-quispe-12-namespace`
 
 ```bash
 # Ubuntu 24.04 - t3.medium - 20GB EBS
+# Ubuntu 24.04 - t3.medium - 20GB EBS
 sudo apt update && sudo apt install -y docker.io
 sudo usermod -aG docker $USER && newgrp docker
 
 # Minikube
-curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+curl -LO [https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64](https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64)
 sudo install minikube-linux-amd64 /usr/local/bin/minikube
 
 # kubectl
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+curl -LO "[https://dl.k8s.io/release/$](https://dl.k8s.io/release/$)(curl -L -s [https://dl.k8s.io/release/stable.txt](https://dl.k8s.io/release/stable.txt))/bin/linux/amd64/kubectl"
 sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
 minikube start --driver=docker
@@ -84,7 +85,7 @@ Pasos:
 4. Pushear: `docker push tian11qb/sebastian-front-react-vite-tailwind:lastest`
 
 ```bash
-git clone https://github.com/tian-net/intermedio-manifiestos.git
+git clone [https://github.com/tian-net/intermedio-manifiestos.git](https://github.com/tian-net/intermedio-manifiestos.git)
 cd intermedio-manifiestos
 git checkout develop
 
@@ -92,7 +93,7 @@ kubectl apply -f frontend-cluster/freddy-quispe-12-namespace.yaml
 kubectl apply -f frontend-cluster/frontend-deployment.yaml
 kubectl apply -f frontend-cluster/frontend-service.yaml
 
-# Exponer Frontend
+# Exponer Frontend en segundo plano
 kubectl port-forward -n freddy-quispe-12-namespace service/frontend-service 30080:80 --address 0.0.0.0 &
 ```
 
@@ -124,4 +125,28 @@ curl http://localhost:30080
 
 ```bash
 minikube delete --all
+
+# Matar proceso del Frontend (Puerto 30080)
+sudo fuser -k 30080/tcp
+
+# Matar proceso del Backend (Puerto 30001)
+sudo fuser -k 30001/tcp
+
+# Matar proceso de Mongo (Puerto 27017)
+sudo fuser -k 27017/tcp
+
+
+# Forzar reinicio de los pods del Backend
+kubectl rollout restart deployment/freddy-quispe-12-deployment -n freddy-quispe-12-namespace
+
+# Forzar reinicio de los pods del Frontend
+kubectl rollout restart deployment/frontend-deployment -n freddy-quispe-12-namespace
+
+
+
+# 1. Ver los logs internos de la aplicación (Ej. Spring Boot o Vite)
+kubectl logs -n freddy-quispe-12-namespace deployment/frontend-deployment
+
+# 2. Ver los eventos de Kubernetes (Ej. errores de falta de memoria o imagen no encontrada)
+kubectl describe pod -l app=frontend -n freddy-quispe-12-namespace
 ```

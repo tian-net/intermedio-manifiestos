@@ -20,4 +20,4 @@ spec:
           image: tian11qb/sebastian-front-react-vite-tailwind:lastest
           imagePullPolicy: Always
           ports:
-            - containerPort: 80
+            - containerPort: 5173  # Ajustado al puerto por defecto de Vite
