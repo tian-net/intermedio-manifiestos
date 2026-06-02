@@ -16,18 +16,18 @@ Namespace comun: `freddy-quispe-12-namespace`
 
 ```bash
 # Ubuntu 24.04 - t3.medium - 20GB EBS
-# Ubuntu 24.04 - t3.medium - 20GB EBS
 sudo apt update && sudo apt install -y docker.io
 sudo usermod -aG docker $USER && newgrp docker
 
 # Minikube
-curl -LO [https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64](https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64)
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
 sudo install minikube-linux-amd64 /usr/local/bin/minikube
 
 # kubectl
-curl -LO "[https://dl.k8s.io/release/$](https://dl.k8s.io/release/$)(curl -L -s [https://dl.k8s.io/release/stable.txt](https://dl.k8s.io/release/stable.txt))/bin/linux/amd64/kubectl"
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
+# Iniciar Minikube
 minikube start --driver=docker
 ```
 
