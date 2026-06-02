@@ -85,7 +85,7 @@ Pasos:
 4. Pushear: `docker push tian11qb/sebastian-front-react-vite-tailwind:lastest`
 
 ```bash
-git clone [https://github.com/tian-net/intermedio-manifiestos.git](https://github.com/tian-net/intermedio-manifiestos.git)
+git clone https://github.com/tian-net/intermedio-manifiestos.git
 cd intermedio-manifiestos
 git checkout develop
 
