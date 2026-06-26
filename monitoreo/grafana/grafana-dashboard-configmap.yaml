@@ -1,0 +1,418 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-elchino
+  namespace: monitoreo
+  labels:
+    grafana_dashboard: "1"
+data:
+  elchino-dashboard.json: |
+    {
+      "__inputs": [],
+      "__requires": [],
+      "title": "ELCHINO - Monitoreo General",
+      "uid": "elchino-monitoreo",
+      "version": 1,
+      "schemaVersion": 39,
+      "tags": ["elchino", "monitoreo"],
+      "timezone": "browser",
+      "editable": true,
+      "refresh": "30s",
+      "time": { "from": "now-1h", "to": "now" },
+      "timepicker": {},
+      "templating": { "list": [] },
+      "annotations": { "list": [] },
+      "panels": [
+        {
+          "title": "Estado General",
+          "type": "row",
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+        },
+        {
+          "id": 1,
+          "title": "Backend",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+          "targets": [
+            {
+              "expr": "up{job=\"backend-actuator\"}",
+              "legendFormat": "Estado"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "green", "value": 1 }
+                ]
+              },
+              "unit": "none",
+              "mappings": [
+                { "type": "value", "value": "1", "text": "OK" },
+                { "type": "value", "value": "0", "text": "DOWN" }
+              ]
+            }
+          }
+        },
+        {
+          "id": 2,
+          "title": "MongoDB",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+          "targets": [
+            {
+              "expr": "up{job=\"mongodb\"}",
+              "legendFormat": "Estado"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "green", "value": 1 }
+                ]
+              },
+              "unit": "none",
+              "mappings": [
+                { "type": "value", "value": "1", "text": "OK" },
+                { "type": "value", "value": "0", "text": "DOWN" }
+              ]
+            }
+          }
+        },
+        {
+          "id": 3,
+          "title": "Frontend (Nginx)",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+          "targets": [
+            {
+              "expr": "up{job=\"node-frontend\"}",
+              "legendFormat": "Estado"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "green", "value": 1 }
+                ]
+              },
+              "unit": "none",
+              "mappings": [
+                { "type": "value", "value": "1", "text": "OK" },
+                { "type": "value", "value": "0", "text": "DOWN" }
+              ]
+            }
+          }
+        },
+        {
+          "id": 4,
+          "title": "Uptime - Backend",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+          "targets": [
+            {
+              "expr": "time() - process_start_time_seconds{job=\"backend-actuator\"}",
+              "legendFormat": "Uptime"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "title": "Uso de CPU (%)",
+          "type": "row",
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 }
+        },
+        {
+          "id": 10,
+          "title": "CPU - Comparativa por Servidor",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 6 },
+          "targets": [
+            {
+              "expr": "100 - (avg by(instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+              "legendFormat": "{{ instance }}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "orange", "value": 60 },
+                  { "color": "red", "value": 80 }
+                ]
+              }
+            }
+          },
+          "options": {
+            "legend": { "showLegend": true, "placement": "bottom" },
+            "tooltip": { "mode": "multi" }
+          }
+        },
+        {
+          "title": "Uso de Memoria (%)",
+          "type": "row",
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 }
+        },
+        {
+          "id": 20,
+          "title": "Memoria - Comparativa por Servidor",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 15 },
+          "targets": [
+            {
+              "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
+              "legendFormat": "{{ instance }}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "orange", "value": 60 },
+                  { "color": "red", "value": 80 }
+                ]
+              }
+            }
+          },
+          "options": {
+            "legend": { "showLegend": true, "placement": "bottom" },
+            "tooltip": { "mode": "multi" }
+          }
+        },
+        {
+          "title": "Espacio en Disco (%)",
+          "type": "row",
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 }
+        },
+        {
+          "id": 30,
+          "title": "Disco - % Usado por Servidor",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
+          "targets": [
+            {
+              "expr": "100 - ((node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"}) * 100)",
+              "legendFormat": "{{ instance }}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "orange", "value": 70 },
+                  { "color": "red", "value": 80 }
+                ]
+              }
+            }
+          },
+          "options": {
+            "legend": { "showLegend": true, "placement": "bottom" },
+            "tooltip": { "mode": "multi" }
+          }
+        },
+        {
+          "id": 31,
+          "title": "Disco - Espacio Libre (GB)",
+          "type": "gauge",
+          "gridPos": { "h": 6, "w": 8, "x": 0, "y": 32 },
+          "targets": [
+            {
+              "expr": "node_filesystem_avail_bytes{mountpoint=\"/\"} / 1073741824",
+              "legendFormat": "{{ instance }}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "decgbytes",
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "orange", "value": 5 },
+                  { "color": "green", "value": 10 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "title": "MongoDB",
+          "type": "row",
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 38 }
+        },
+        {
+          "id": 40,
+          "title": "Tamaño de Base de Datos",
+          "type": "stat",
+          "gridPos": { "h": 5, "w": 8, "x": 0, "y": 39 },
+          "targets": [
+            {
+              "expr": "mongodb_database_collection_size_bytes / 1073741824",
+              "legendFormat": "Tamaño BD (GB)"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "decgbytes"
+            }
+          }
+        },
+        {
+          "id": 41,
+          "title": "Conexiones Activas MongoDB",
+          "type": "timeseries",
+          "gridPos": { "h": 5, "w": 8, "x": 8, "y": 39 },
+          "targets": [
+            {
+              "expr": "mongodb_connections_current",
+              "legendFormat": "Conexiones"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short"
+            }
+          }
+        },
+        {
+          "id": 42,
+          "title": "Operaciones por Segundo",
+          "type": "timeseries",
+          "gridPos": { "h": 5, "w": 8, "x": 16, "y": 39 },
+          "targets": [
+            {
+              "expr": "rate(mongodb_commands_total[5m])",
+              "legendFormat": "Comandos/s"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "cps"
+            }
+          }
+        },
+        {
+          "title": "Backend - Métricas JVM",
+          "type": "row",
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 44 }
+        },
+        {
+          "id": 50,
+          "title": "Heap Memory (MB)",
+          "type": "timeseries",
+          "gridPos": { "h": 7, "w": 12, "x": 0, "y": 45 },
+          "targets": [
+            {
+              "expr": "jvm_memory_used_bytes{area=\"heap\", job=\"backend-actuator\"} / 1048576",
+              "legendFormat": "{{ app }} - {{ id }}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "mbytes"
+            }
+          }
+        },
+        {
+          "id": 51,
+          "title": "Non-Heap Memory (MB)",
+          "type": "timeseries",
+          "gridPos": { "h": 7, "w": 12, "x": 12, "y": 45 },
+          "targets": [
+            {
+              "expr": "jvm_memory_used_bytes{area=\"nonheap\", job=\"backend-actuator\"} / 1048576",
+              "legendFormat": "{{ app }} - {{ id }}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "mbytes"
+            }
+          }
+        },
+        {
+          "id": 52,
+          "title": "HTTP Requests Rate",
+          "type": "timeseries",
+          "gridPos": { "h": 7, "w": 12, "x": 0, "y": 52 },
+          "targets": [
+            {
+              "expr": "rate(http_server_requests_seconds_count{job=\"backend-actuator\"}[5m])",
+              "legendFormat": "{{ uri }} - {{ method }}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "rps"
+            }
+          }
+        },
+        {
+          "id": 53,
+          "title": "Tiempo de Respuesta (ms) - P99",
+          "type": "timeseries",
+          "gridPos": { "h": 7, "w": 12, "x": 12, "y": 52 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.99, rate(http_server_requests_seconds_bucket{job=\"backend-actuator\"}[5m])) * 1000",
+              "legendFormat": "P99 - {{ uri }}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms"
+            }
+          }
+        },
+        {
+          "title": "Alertas Activas",
+          "type": "row",
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 59 }
+        },
+        {
+          "id": 60,
+          "title": "Alertas Disparadas",
+          "type": "alertlist",
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 60 },
+          "options": {
+            "showOptions": "current",
+            "maxItems": 20,
+            "sortOrder": 1
+          }
+        }
+      ]
+    }

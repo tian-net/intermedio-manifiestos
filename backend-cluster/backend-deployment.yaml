@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: freddy-quispe-12-container
-        image: tian11qb/sebastian-webflux-nosql:lastest
+        image: tian11qb/sebastian-webflux-nosql:monitoring
         imagePullPolicy: Always
         ports:
           - containerPort: 8087

@@ -1,0 +1,360 @@
+// ============================================================
+//  SCRIPT DE INICIALIZACIÓN - ELCHINO Restobar
+//  Base de datos: elchino
+//  Uso: mongosh < seed_elchino.mongodb
+// ============================================================
+
+db = db.getSiblingDB('elchino');
+print('\n========== INICIANDO SEED ELCHINO ==========\n');
+
+// ─────────────────────────────────────────
+//  1. ELIMINAR COLECCIONES EXISTENTES
+// ─────────────────────────────────────────
+db.customers.drop();
+db.restaurant_tables.drop();
+db.events.drop();
+db.reservations.drop();
+db.event_reservations.drop();
+print('>> Colecciones eliminadas\n');
+
+
+
+// ─────────────────────────────────────────
+//  2. CREAR COLECCIONES
+// ─────────────────────────────────────────
+db.createCollection('customers');
+db.createCollection('restaurant_tables');
+db.createCollection('events');
+db.createCollection('reservations');
+db.createCollection('event_reservations');
+print('>> Colecciones creadas\n');
+
+// ─────────────────────────────────────────
+//  3. ÍNDICES
+// ─────────────────────────────────────────
+db.customers.createIndex({ email: 1 }, { unique: true });
+db.customers.createIndex({ docType: 1, docNum: 1 });
+db.customers.createIndex({ isDeleted: 1 });
+db.customers.createIndex({ lastName: 1 });
+
+db.restaurant_tables.createIndex({ tableNum: 1 }, { unique: true });
+db.restaurant_tables.createIndex({ isDeleted: 1, isReservable: 1 });
+db.restaurant_tables.createIndex({ location: 1 });
+db.restaurant_tables.createIndex({ status: 1 });
+
+db.events.createIndex({ eventType: 1 });
+db.events.createIndex({ isDeleted: 1, isActive: 1 });
+db.events.createIndex({ name: 1 });
+
+db.reservations.createIndex({ customerId: 1 });
+db.reservations.createIndex({ resDate: 1 });
+db.reservations.createIndex({ status: 1 });
+db.reservations.createIndex({ isDeleted: 1 });
+
+db.event_reservations.createIndex({ customerId: 1 });
+db.event_reservations.createIndex({ "details.eventId": 1 });
+db.event_reservations.createIndex({ "details.eventDate": 1 });
+db.event_reservations.createIndex({ status: 1 });
+db.event_reservations.createIndex({ isDeleted: 1 });
+
+print('>> Índices creados\n');
+
+// ─────────────────────────────────────────
+//  4. FUNCIONES AUXILIARES
+// ─────────────────────────────────────────
+function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randomDate(start, end) {
+    return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+}
+
+function padNum(num, length) {
+    return String(num).padStart(length, '0');
+}
+
+function pick(arr) {
+    return arr[randomInt(0, arr.length - 1)];
+}
+
+function toDateStr(date) {
+    return date.toISOString().split('T')[0];
+}
+
+// ─────────────────────────────────────────
+//  5. CUSTOMERS (100 registros)
+// ─────────────────────────────────────────
+const firstNames = [
+    'Carlos', 'Maria', 'Jose', 'Ana', 'Luis', 'Rosa', 'Juan', 'Carmen', 'Pedro', 'Elena',
+    'Miguel', 'Sofia', 'Diego', 'Laura', 'Andres', 'Patricia', 'Alberto', 'Marta', 'Ricardo', 'Claudia',
+    'Fernando', 'Silvia', 'Jorge', 'Liliana', 'Raul', 'Veronica', 'Manuel', 'Ruth', 'Alejandro', 'Paola',
+    'Gustavo', 'Diana', 'Rafael', 'Monica', 'Oscar', 'Rocio', 'Victor', 'Gloria', 'Pablo', 'Alicia',
+    'Sergio', 'Nadia', 'Enrique', 'Roxana', 'Omar', 'Esperanza', 'Cesar', 'Brigitte', 'Marco', 'Yolanda',
+    'Martin', 'Lucia', 'Javier', 'Adriana', 'Alonso', 'Mariela', 'Eduardo', 'Raquel', 'Rodrigo', 'Natalia',
+    'Hugo', 'Beatriz', 'Ivan', 'Daniela', 'Oswaldo', 'Marina', 'Felix', 'Angela', 'Arturo', 'Alejandra',
+    'Ruben', 'Isabel', 'Alvaro', 'Jessica', 'Joaquin', 'Rita', 'Esteban', 'Consuelo', 'Cristian', 'Luz',
+    'Moises', 'Miriam', 'Bryan', 'Susana', 'Wilmer', 'Pilar', 'Erick', 'Margarita', 'Renzo', 'Fiorella',
+    'Aaron', 'Flor', 'Anderson', 'Milagros', 'Brandon', 'Lisset', 'Gabriel', 'Cinthia', 'Julio', 'Brenda'
+];
+
+const lastNames = [
+    'Garcia', 'Rodriguez', 'Martinez', 'Lopez', 'Hernandez', 'Gonzales', 'Perez', 'Sanchez', 'Ramirez', 'Torres',
+    'Flores', 'Rivera', 'Castillo', 'Reyes', 'Vargas', 'Cruz', 'Diaz', 'Morales', 'Ortiz', 'Ramos',
+    'Silva', 'Benites', 'Rojas', 'Vega', 'Campos', 'Salazar', 'Cardenas', 'Mendoza', 'Guerrero', 'Chavez',
+    'Quispe', 'Huaman', 'Condori', 'Mamani', 'Paredes', 'Huerta', 'Carrillo', 'Galvez', 'Padilla', 'Guzman',
+    'Farro', 'Navarro', 'Peña', 'Cueva', 'Ruidias', 'Alarcon', 'Inca', 'Llontop', 'Villegas', 'Saavedra'
+];
+
+const docTypes = ['DNI', 'DNI', 'DNI', 'DNI', 'DNI', 'DNI', 'DNI', 'DNI', 'RUC', 'CarnetExtranjeria'];
+
+const customers = [];
+for (let i = 0; i < 100; i++) {
+    const id = new ObjectId();
+    const firstName = firstNames[i];
+    const lastName = pick(lastNames);
+    const docType = pick(docTypes);
+    let docNum;
+    if (docType === 'DNI') docNum = padNum(randomInt(10000000, 99999999), 8);
+    else if (docType === 'RUC') docNum = padNum(randomInt(10000000000, 99999999999), 11);
+    else docNum = padNum(randomInt(1000000, 9999999), 7);
+    const phone = '9' + padNum(randomInt(10000000, 99999999), 8);
+    const cleanName = (firstName + lastName).toLowerCase().replace(/[^a-z]/g, '');
+    const email = cleanName + randomInt(1, 999) + '@gmail.com';
+    const regDate = toDateStr(randomDate(new Date('2024-01-01'), new Date('2026-06-04')));
+    const createdAt = randomDate(new Date('2024-01-01'), new Date('2026-06-04'));
+
+    customers.push({
+        _id: id,
+        firstName: firstName,
+        lastName: lastName,
+        phone: phone,
+        email: email,
+        docType: docType,
+        docNum: docNum,
+        regDate: regDate,
+        isFrequent: Math.random() < 0.3,
+        createdAt: createdAt,
+        updatedAt: createdAt,
+        isDeleted: false
+    });
+}
+db.customers.insertMany(customers);
+print('>> 100 customers insertados');
+
+// ─────────────────────────────────────────
+//  6. RESTAURANT TABLES (100 registros)
+// ─────────────────────────────────────────
+const locations = ['Sala Principal', 'Terraza', 'VIP', 'Mezzanine', 'Jardin', 'Barra Central'];
+
+const tables = [];
+for (let i = 1; i <= 100; i++) {
+    let cap;
+    if (i <= 10) cap = 2;
+    else if (i <= 30) cap = 4;
+    else if (i <= 60) cap = 6;
+    else if (i <= 80) cap = 8;
+    else if (i <= 95) cap = 10;
+    else cap = 12;
+
+    tables.push({
+        _id: new ObjectId(),
+        tableNum: i,
+        capacity: cap,
+        location: pick(locations),
+        description: 'Mesa ' + i + ' - Capacidad: ' + cap + ' personas',
+        status: 'ACTIVE',
+        isReservable: i <= 90,
+        lastInspDate: toDateStr(randomDate(new Date('2025-01-01'), new Date('2026-06-04'))),
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2026-06-04'),
+        isDeleted: false
+    });
+}
+db.restaurant_tables.insertMany(tables);
+print('>> 100 restaurant_tables insertados');
+
+// ─────────────────────────────────────────
+//  7. EVENTS (100 registros)
+// ─────────────────────────────────────────
+const eventConfigs = [
+    { type: 'Concierto', hours: [150, 200, 250, 300], days: [1200, 1800, 2500] },
+    { type: 'Fiesta Privada', hours: [80, 100, 120, 150], days: [600, 800, 1000] },
+    { type: 'Cumpleaños', hours: [60, 80, 100], days: [400, 600, 800] },
+    { type: 'Evento Empresarial', hours: [100, 120, 150, 200], days: [800, 1000, 1500] },
+    { type: 'Boda', hours: [200, 250, 300, 400], days: [2000, 2500, 3500] },
+    { type: 'Show en Vivo', hours: [80, 100, 130], days: [600, 800] },
+    { type: 'Noche de Karaoke', hours: [40, 60, 80], days: [300, 500] },
+    { type: 'Cena Espectaculo', hours: [120, 150, 200], days: [900, 1200] },
+    { type: 'After Office', hours: [50, 70, 90], days: [350, 500] },
+    { type: 'Brunch Dominical', hours: [60, 80], days: [400, 500] }
+];
+
+const eventAdjectives = [
+    'Especial', 'Premium', 'Deluxe', 'Exclusivo', 'Inolvidable',
+    'VIP', 'Grandioso', 'Intimo', 'Elegante', 'Tradicional'
+];
+
+const capacityOptions = [20, 30, 40, 50, 60, 80, 100, 120, 150, 200];
+
+const events = [];
+for (let i = 0; i < 100; i++) {
+    const cfg = pick(eventConfigs);
+    const name = cfg.type + ' ' + pick(eventAdjectives) + ' #' + (i + 1);
+
+    events.push({
+        _id: new ObjectId(),
+        name: name,
+        eventType: cfg.type,
+        pricePerHour: pick(cfg.hours),
+        pricePerDay: pick(cfg.days),
+        maxCapacity: pick(capacityOptions),
+        description: cfg.type + '. ' + pick(eventAdjectives) + '. Capacidad limitada.',
+        isActive: true,
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2026-06-04'),
+        isDeleted: false
+    });
+}
+db.events.insertMany(events);
+print('>> 100 events insertados');
+
+// ─────────────────────────────────────────
+//  8. RESERVATIONS (35 registros transaccionales)
+//    Con ReservationTable[] embebido
+// ─────────────────────────────────────────
+const reservableTables = tables.filter(function(t) { return t.isReservable; });
+const statusList = ['PENDING', 'PENDING', 'CONFIRMED', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
+const hoursList = ['12:00:00', '13:00:00', '14:00:00', '15:00:00', '16:00:00', '17:00:00',
+    '18:00:00', '19:00:00', '20:00:00', '21:00:00', '22:00:00'];
+
+const reservations = [];
+for (let i = 0; i < 35; i++) {
+    const customer = pick(customers);
+    const daysAhead = randomInt(5, 90);
+    const d = new Date();
+    d.setDate(d.getDate() + daysAhead);
+    const dateStr = toDateStr(d);
+    const timeIdx = randomInt(0, hoursList.length - 2);
+    const numPeople = randomInt(2, 12);
+    const status = pick(statusList);
+    const totalAmt = parseFloat((numPeople * randomInt(20, 60)).toFixed(2));
+
+    const numTables = Math.min(randomInt(1, 3), Math.ceil(numPeople / 2) + 1);
+    const usedTids = [];
+    for (let t = 0; t < numTables; t++) {
+        usedTids.push(pick(reservableTables)._id);
+    }
+    const uniqueTids = [...new Set(usedTids.map(function(tid) { return tid.toString(); }))];
+
+    const details = uniqueTids.map(function(tid) {
+        return {
+            tableId: tid,
+            notes: '',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            isDeleted: false
+        };
+    });
+
+    reservations.push({
+        _id: new ObjectId(),
+        customerId: customer._id.toString(),
+        resDate: dateStr,
+        resTime: hoursList[timeIdx],
+        numPeople: numPeople,
+        status: status,
+        totalAmt: totalAmt,
+        details: details,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        isDeleted: false
+    });
+}
+db.reservations.insertMany(reservations);
+print('>> 35 reservations insertados');
+
+// ─────────────────────────────────────────
+//  9. EVENT RESERVATIONS (35 registros transaccionales)
+// ─────────────────────────────────────────
+const resTypes = ['POR_HORA', 'POR_HORA', 'POR_HORA', 'POR_DIA'];
+
+function buildDetail(event, dateStr, startH, hoursQty, type) {
+    const startTimeStr = padNum(startH, 2) + ':00:00';
+    const endTimeStr = padNum(startH + hoursQty, 2) + ':00:00';
+    let totalAmount;
+    if (type === 'POR_HORA') {
+        totalAmount = hoursQty * event.pricePerHour;
+    } else {
+        totalAmount = event.pricePerDay;
+    }
+    return {
+        eventId: event._id.toString(),
+        eventName: event.name,
+        eventDate: dateStr,
+        startTime: startTimeStr,
+        endTime: endTimeStr,
+        reservationType: type,
+        quantityHours: type === 'POR_HORA' ? hoursQty : 0,
+        pricePerHour: event.pricePerHour,
+        pricePerDay: event.pricePerDay,
+        totalAmount: totalAmount
+    };
+}
+
+const eventReservations = [];
+for (let i = 0; i < 35; i++) {
+    const customer = pick(customers);
+    const numDetails = (i < 10 && i % 2 === 0) ? 2 : 1; // ~5 reservas con 2 eventos
+    const details = [];
+    let reservationTotal = 0;
+    let maxPeople = 150;
+    let maxCapacity = 200;
+
+    for (let d = 0; d < numDetails; d++) {
+        const event = pick(events);
+        const daysAhead = randomInt(10 + d * 10, 120);
+        const date = new Date();
+        date.setDate(date.getDate() + daysAhead);
+        const dateStr = toDateStr(date);
+        const startH = randomInt(8, 16);
+        const hoursQty = randomInt(2, 6);
+        const type = pick(resTypes);
+        const detail = buildDetail(event, dateStr, startH, hoursQty, type);
+        reservationTotal += detail.totalAmount;
+        maxPeople = Math.min(maxPeople, event.maxCapacity);
+        maxCapacity = Math.min(maxCapacity, event.maxCapacity);
+        details.push(detail);
+    }
+
+    const totalPeople = Math.min(randomInt(10, 150), maxPeople);
+    const status = pick(statusList);
+
+    eventReservations.push({
+        _id: new ObjectId(),
+        customerId: customer._id.toString(),
+        totalPeople: totalPeople,
+        venueCapacity: maxCapacity,
+        status: status,
+        notes: Math.random() < 0.3 ? 'Solicitud especial del cliente' : '',
+        details: details,
+        totalAmount: reservationTotal,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        isDeleted: false
+    });
+}
+db.event_reservations.insertMany(eventReservations);
+print('>> 35 event_reservations insertados');
+
+// ─────────────────────────────────────────
+//  10. RESUMEN FINAL
+// ─────────────────────────────────────────
+print('\n========== SEED COMPLETADO ==========');
+print('Resumen de colecciones:');
+print('  customers          -> ' + db.customers.countDocuments() + ' documentos');
+print('  restaurant_tables  -> ' + db.restaurant_tables.countDocuments() + ' documentos');
+print('  events             -> ' + db.events.countDocuments() + ' documentos');
+print('  reservations       -> ' + db.reservations.countDocuments() + ' documentos');
+print('  event_reservations -> ' + db.event_reservations.countDocuments() + ' documentos');
+print('=====================================\n');

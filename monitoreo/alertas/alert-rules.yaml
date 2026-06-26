@@ -1,0 +1,47 @@
+groups:
+  - name: elchino-alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CPU > 80% en {{ $labels.instance }}"
+          description: "El CPU ha superado el 80% durante más de 5 minutos."
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 80
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Memoria > 80% en {{ $labels.instance }}"
+          description: "El uso de memoria ha superado el 80%."
+
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 20
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disco < 20% libre en {{ $labels.instance }}"
+          description: "Queda menos del 20% de espacio en disco."
+
+      - alert: BackendDown
+        expr: up{job="backend-actuator"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Backend fuera de servicio"
+          description: "El backend Spring Boot en {{ $labels.instance }} no responde."
+
+      - alert: MongoDBDown
+        expr: up{job="mongodb"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "MongoDB fuera de servicio"
+          description: "MongoDB en {{ $labels.instance }} no responde."
