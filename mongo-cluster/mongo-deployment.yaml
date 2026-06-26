@@ -26,11 +26,7 @@ spec:
         - name: mongodb-exporter
           image: bitnami/mongodb-exporter:latest
           args:
-            - "--collector.database"
-            - "--collector.topmetrics"
-            - "--collector.connections"
-            - "--collector.opcounters"
-            - "--collector.collstats"
+            - "--collect-all"
             - "--compatible-mode"
           ports:
             - containerPort: 9216
