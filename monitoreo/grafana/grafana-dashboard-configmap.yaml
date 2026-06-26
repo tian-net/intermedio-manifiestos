@@ -281,7 +281,7 @@ data:
           "gridPos": { "h": 5, "w": 8, "x": 0, "y": 39 },
           "targets": [
             {
-              "expr": "mongodb_dbstats_dataSize{database=~\"$database\"} / 1073741824",
+              "expr": "mongodb_dbstats_dataSize{database=\"elchino\"} / 1073741824",
               "legendFormat": "Tamaño BD (GB)"
             }
           ],
@@ -383,13 +383,13 @@ data:
         },
         {
           "id": 53,
-          "title": "Tiempo de Respuesta (ms) - P99",
+          "title": "Tiempo de Respuesta Promedio (ms)",
           "type": "timeseries",
           "gridPos": { "h": 7, "w": 12, "x": 12, "y": 52 },
           "targets": [
             {
-              "expr": "histogram_quantile(0.99, rate(http_server_requests_seconds_bucket{application=\"Elchino\"}[5m])) * 1000",
-              "legendFormat": "P99 - {{ uri }}"
+              "expr": "rate(http_server_requests_seconds_sum{application=\"Elchino\"}[5m]) / rate(http_server_requests_seconds_count{application=\"Elchino\"}[5m]) * 1000",
+              "legendFormat": "Avg - {{ uri }}"
             }
           ],
           "fieldConfig": {
