@@ -36,6 +36,7 @@ sudo install minikube-linux-amd64 /usr/local/bin/minikube
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
+# Iniciar Minikube
 minikube start --driver=docker
 ```
 
@@ -43,9 +44,9 @@ Ademas, en EC2-1, EC2-2 y EC2-3 instalar **Node Exporter** para metricas de CPU,
 
 ```bash
 # Descargar e instalar Node Exporter
-    wget https://github.com/prometheus/node_exporter/releases/download/v1.11.1/node_exporter-1.11.1.linux-amd64.tar.gz
-    tar xvfz node_exporter-1.11.1.linux-amd64.tar.gz
-    sudo mv node_exporter-1.11.1.linux-amd64/node_exporter /usr/local/bin/
+wget https://github.com/prometheus/node_exporter/releases/download/v1.11.1/node_exporter-1.11.1.linux-amd64.tar.gz
+tar xvfz node_exporter-1.11.1.linux-amd64.tar.gz
+sudo mv node_exporter-1.11.1.linux-amd64/node_exporter /usr/local/bin/
 
     # Crear servicio systemd
     sudo tee /etc/systemd/system/node_exporter.service > /dev/null << EOF
