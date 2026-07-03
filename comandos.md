@@ -137,9 +137,13 @@ curl -s http://localhost:30080 | head -5
 > Si cambiaste la IP del backend, reconstruir la imagen frontend desde tu PC local:
 > ```bash
 > cd ASE242S4_T05-fe
-> # Editar src/lib/constants.ts con la IP publica de EC2-2
+> # 1. Editar .env con la IP publica de EC2-2
+> echo "VITE_API_BASE=http://<EC2-2_PUBLIC_IP>:30001/api" > .env
+> # 2. Build + push
+> npm run build
 > docker build -t tian11qb/sebastian-front-react-vite-tailwind:lastest .
 > docker push tian11qb/sebastian-front-react-vite-tailwind:lastest
+> # 3. En EC2-3: rollout restart
 > kubectl rollout restart deployment/frontend-deployment -n freddy-quispe-12-namespace
 > ```
 
