@@ -229,7 +229,7 @@ const hoursList = ['12:00:00', '13:00:00', '14:00:00', '15:00:00', '16:00:00', '
     '18:00:00', '19:00:00', '20:00:00', '21:00:00', '22:00:00'];
 
 const reservations = [];
-for (let i = 0; i < 35; i++) {
+for (let i = 0; i < 100; i++) {
     const customer = pick(customers);
     const daysAhead = randomInt(5, 90);
     const d = new Date();
@@ -272,10 +272,10 @@ for (let i = 0; i < 35; i++) {
     });
 }
 db.reservations.insertMany(reservations);
-print('>> 35 reservations insertados');
+print('>> 100 reservations insertados');
 
 // ─────────────────────────────────────────
-//  9. EVENT RESERVATIONS (35 registros transaccionales)
+//  9. EVENT RESERVATIONS (100  registros transaccionales)
 // ─────────────────────────────────────────
 const resTypes = ['POR_HORA', 'POR_HORA', 'POR_HORA', 'POR_DIA'];
 
@@ -303,7 +303,7 @@ function buildDetail(event, dateStr, startH, hoursQty, type) {
 }
 
 const eventReservations = [];
-for (let i = 0; i < 35; i++) {
+for (let i = 0; i < 100; i++) {
     const customer = pick(customers);
     const numDetails = (i < 10 && i % 2 === 0) ? 2 : 1; // ~5 reservas con 2 eventos
     const details = [];
@@ -345,7 +345,7 @@ for (let i = 0; i < 35; i++) {
     });
 }
 db.event_reservations.insertMany(eventReservations);
-print('>> 35 event_reservations insertados');
+print('>> 100 event_reservations insertados');
 
 // ─────────────────────────────────────────
 //  10. RESUMEN FINAL
