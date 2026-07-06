@@ -20,33 +20,33 @@ data:
       - job_name: 'node-mongo'
         static_configs:
           - targets: ['<EC2-1_IP>:9100']
-        labels:
-          servidor: 'EC2-1-MongoDB'
+            labels:
+              servidor: 'EC2-1-MongoDB'
 
       - job_name: 'node-backend'
         static_configs:
           - targets: ['<EC2-2_IP>:9100']
-        labels:
-          servidor: 'EC2-2-Backend'
+            labels:
+              servidor: 'EC2-2-Backend'
 
       - job_name: 'node-frontend'
         static_configs:
           - targets: ['<EC2-3_IP>:9100']
-        labels:
-          servidor: 'EC2-3-Frontend'
+            labels:
+              servidor: 'EC2-3-Frontend'
 
       - job_name: 'mongodb'
         static_configs:
           - targets: ['<EC2-1_IP>:30092']
-        labels:
-          servidor: 'EC2-1-MongoDB'
+            labels:
+              servidor: 'EC2-1-MongoDB'
 
       - job_name: 'backend-actuator'
         metrics_path: '/actuator/prometheus'
         static_configs:
           - targets: ['<EC2-2_IP>:30001']
-        labels:
-          servidor: 'EC2-2-Backend'
+            labels:
+              servidor: 'EC2-2-Backend'
   alert-rules.yml: |
     groups:
       - name: elchino-alerts
